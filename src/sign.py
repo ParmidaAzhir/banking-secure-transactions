@@ -1,16 +1,16 @@
 import json
 import argparse
-from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives import hashes, serialization #serialization is used to save files in PEM format and load PEM files.
 from cryptography.hazmat.primitives.asymmetric import padding
 
 def canonicalize_json(obj) -> bytes:
-    return json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8") #(sort keys/remove spaces after , and :)#Convert to bytes
 
 def sign_data(data: bytes, private_key_path: str) -> bytes:
-    with open(private_key_path, "rb") as f:
+    with open(private_key_path, "rb") as f: # Open the sender private key file and load the PEM private key.
         private_key = serialization.load_pem_private_key(f.read(), password=None)
 
-    signature = private_key.sign(
+    signature = private_key.sign( #signs the canonicalized data using:
         data,
         padding.PKCS1v15(),
         hashes.SHA256()
@@ -18,14 +18,14 @@ def sign_data(data: bytes, private_key_path: str) -> bytes:
     return signature
 
 def main(data_path: str, key_path: str, sig_out: str):
-    with open(data_path, "r", encoding="utf-8") as f:
+    with open(data_path, "r", encoding="utf-8") as f: 
         obj = json.load(f)
 
     data = canonicalize_json(obj)
     signature = sign_data(data, key_path)
 
-    with open(sig_out, "wb") as f:
-        f.write(signature)
+    with open(sig_out, "wb") as f: #This saves the signature bytes into the output file.
+        f.write(signature) 
 
     print("Signature created and saved to", sig_out)
 
