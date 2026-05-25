@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 
 def save_private_key(path, key):
     with open(path, "wb") as f:
-        f.write(
+        f.write( # Write private key bytes in pem format
             key.private_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.TraditionalOpenSSL,
@@ -26,27 +26,27 @@ def build_name(common_name):
     ])
 
 def main():
-    with open("keys/ca_key.pem", "rb") as f:
-        ca_key = serialization.load_pem_private_key(f.read(), password=None)
+    with open("keys/ca_key.pem", "rb") as f: 
+        ca_key = serialization.load_pem_private_key(f.read(), password=None) #Load CA private key
 
     with open("keys/ca_cert.pem", "rb") as f:
-        ca_cert = x509.load_pem_x509_certificate(f.read())
+        ca_cert = x509.load_pem_x509_certificate(f.read()) #Load CA certificate
 
-    receiver_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    receiver_key = rsa.generate_private_key(public_exponent=65537, key_size=2048) #generate rsa private key
 
     now = datetime.now(timezone.utc)
     receiver_subject = build_name("Receiver")
 
     receiver_cert = (
         x509.CertificateBuilder()
-        .subject_name(receiver_subject)
+        .subject_name(receiver_subject) #owner = receiver
         .issuer_name(ca_cert.subject)
         .public_key(receiver_key.public_key())
         .serial_number(x509.random_serial_number())
         .not_valid_before(now)
         .not_valid_after(now + timedelta(days=3650))
         .add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True)
-        .sign(ca_key, hashes.SHA256())
+        .sign(ca_key, hashes.SHA256()) #sign eceiver cert with
     )
 
     save_private_key("keys/receiver_key.pem", receiver_key)
