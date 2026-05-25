@@ -28,7 +28,7 @@ def build_name(common_name):
 def main():
     now = datetime.now(timezone.utc)
 
-    fake_ca_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    fake_ca_key = rsa.generate_private_key(public_exponent=65537, key_size=2048) ## Generate fake CA public/private key pair.
     fake_ca_subject = build_name("Fake CA")
 
     fake_ca_cert = (
@@ -43,7 +43,7 @@ def main():
         .sign(fake_ca_key, hashes.SHA256())
     )
 
-    fake_sender_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    fake_sender_key = rsa.generate_private_key(public_exponent=65537, key_size=2048) ## Generate fake sender public/private key pair.
     fake_sender_subject = build_name("Fake Sender")
 
     fake_sender_cert = (
