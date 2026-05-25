@@ -1,12 +1,12 @@
 import json
 import time
 import argparse
-import jwt
+import jwt #to create and sign JWT tokens.
 from cryptography.hazmat.primitives import serialization
 
 def main(payload_path: str, sender_key_path: str, token_out: str, issuer: str = "Bank-Server-01", ttl_seconds: int = 60) -> int:
     with open(payload_path, "r", encoding="utf-8") as f:
-        payload = json.load(f)
+        payload = json.load(f) # Load JSON data into payload.
 
     now = int(time.time())
 
@@ -18,11 +18,11 @@ def main(payload_path: str, sender_key_path: str, token_out: str, issuer: str = 
     }
 
     with open(sender_key_path, "rb") as f:
-        private_key = serialization.load_pem_private_key(f.read(), password=None)
+        private_key = serialization.load_pem_private_key(f.read(), password=None) #Loads the sender PEM private key.
 
-    token = jwt.encode(claims, private_key, algorithm="RS256")
+    token = jwt.encode(claims, private_key, algorithm="RS256") #Creates signed JWT using ... #RSA + SHA256
 
-    with open(token_out, "w", encoding="utf-8") as f:
+    with open(token_out, "w", encoding="utf-8") as f: #Save JWT token
         f.write(token)
 
     print("JWT created and saved to", token_out)
@@ -30,8 +30,8 @@ def main(payload_path: str, sender_key_path: str, token_out: str, issuer: str = 
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Issue a signed JWT containing the JSON payload.")
-    p.add_argument("payload")
-    p.add_argument("key")
+    p.add_argument("payload") # read first terminal value and store it as payload
+    p.add_argument("key") #read second terminal value and store it as key
     p.add_argument("out")
     p.add_argument("--iss", default="Parmida-Bank-Server-01")
     p.add_argument("--ttl", type=int, default=300)
